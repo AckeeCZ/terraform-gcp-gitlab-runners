@@ -1,20 +1,3 @@
-data "template_file" "runner_config" {
-  template = file("${path.module}/runner_config.tpl")
-  vars = {
-    CONCURRENT    = var.runner_concurrency
-    NAME          = var.controller_gitlab_name
-    URL           = var.gitlab_url
-    TOKEN         = var.runner_token
-    IDLE_TIME     = var.runner_idle_time
-    PROJECT       = var.project
-    INSTANCE_TYPE = var.runner_instance_type
-    ZONE          = var.zone
-    SA            = google_service_account.runner_instance.email
-    DISK_SIZE     = var.runner_disk_size
-    TAGS          = var.runner_instance_tags
-  }
-}
-
 resource "google_compute_instance" "gitlab_runner" {
   project                   = var.project
   zone                      = var.zone
@@ -55,15 +38,30 @@ docker-machine create --driver google \
     --google-use-internal-ip \
     runner-deploy
 docker-machine rm -y runner-deploy
-echo "${data.template_file.runner_config.rendered}" > /etc/gitlab-runner/config.toml
+echo "Setting GitLab concurrency"
+sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 echo "Registering GitLab CI runner with GitLab instance."
 sudo gitlab-runner register -n \
+    --name "${var.controller_gitlab_name}" \
     --url ${var.gitlab_url} \
     --registration-token ${var.runner_token} \
     --executor "docker+machine" \
     --docker-image "alpine:latest" \
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
+    --docker-privileged=false \
+    --machine-idle-time ${var.runner_idle_time} \
+    --machine-machine-driver google \
+    --machine-machine-name "instance-%s" \
+    --machine-machine-options "google-project=${var.project}" \
+    --machine-machine-options "google-machine-type=${var.runner_instance_type}" \
+    --machine-machine-options "google-zone=${var.zone}" \
+    --machine-machine-options "google-service-account=${google_service_account.runner_instance.email}" \
+    --machine-machine-options "google-scopes=https://www.googleapis.com/auth/cloud-platform" \
+    --machine-machine-options "google-disk-type=pd-ssd" \
+    --machine-machine-options "google-disk-size=${var.runner_disk_size}" \
+    --machine-machine-options "google-tags=${var.runner_instance_tags}" \
+    --machine-machine-options "google-use-internal-ip" \
     && true
 echo "GitLab CI Runner installation complete"
 EOF

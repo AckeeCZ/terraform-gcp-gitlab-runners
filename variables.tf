@@ -39,7 +39,7 @@ variable "controller_instance_type" {
 }
 variable "controller_gitlab_name" {
   type        = string
-  default     = "GCP runner 💪"
+  default     = "GCP runner"
   description = "Name of registered runner in GitLab"
 }
 variable "controller_gitlab_tags" {

@@ -1,3 +1,26 @@
+resource "google_storage_bucket" "runner_cache" {
+  name          = "runner-cache-${var.project}"
+  storage_class = "STANDARD"
+  location      = "EU"
+  force_destroy = true
+  versioning {
+    enabled = false
+  }
+}
+
+resource "google_storage_bucket_iam_binding" "gitlab_ci_runner" {
+  bucket = google_storage_bucket.runner_cache.name
+  role   = "roles/storage.objectAdmin"
+  members = [
+    "serviceAccount:${google_service_account.runner_instance.email}"
+  ]
+  depends_on = [google_storage_bucket.runner_cache]
+}
+
+resource "google_service_account_key" "runner_sa_key" {
+  service_account_id = google_service_account.runner_instance.name
+}
+
 resource "google_compute_instance" "gitlab_runner" {
   project                   = var.project
   zone                      = var.zone
@@ -42,29 +65,12 @@ sudo gitlab-runner register -n \
     --machine-machine-options "google-disk-type=pd-ssd" \
     --machine-machine-options "google-disk-size=${var.runner_disk_size}" \
     --machine-machine-options "google-tags=${var.runner_instance_tags}" \
-    --machine-machine-options "google-use-internal-ip"
-sudo gitlab-runner register -n \
-    --name "${var.controller_gitlab_name} 🙃" \
-    --url ${var.gitlab_url} \
-    --registration-token ${var.runner_token} \
-    --executor "docker+machine" \
-    --docker-image "alpine:latest" \
-    --tag-list "${var.controller_gitlab_tags}, cheap" \
-    --run-untagged="${var.controller_gitlab_untagged}" \
-    --docker-privileged=true \
-    --machine-idle-time ${var.runner_idle_time} \
-    --machine-machine-driver google \
-    --machine-machine-name "preemptible-instance-%s" \
-    --machine-machine-options "google-project=${var.project}" \
-    --machine-machine-options "google-machine-type=${var.runner_instance_type}" \
-    --machine-machine-options "google-zone=${var.zone}" \
-    --machine-machine-options "google-service-account=${google_service_account.runner_instance.email}" \
-    --machine-machine-options "google-scopes=https://www.googleapis.com/auth/cloud-platform" \
-    --machine-machine-options "google-disk-type=pd-ssd" \
-    --machine-machine-options "google-disk-size=${var.runner_disk_size}" \
-    --machine-machine-options "google-tags=${var.runner_instance_tags}" \
-    --machine-machine-options "google-preemptible=true" \
-    --machine-machine-options "google-use-internal-ip=true"
+    --machine-machine-options "google-use-internal-ip" \
+    --cache-shared \
+    --cache-type "gcs" \
+    --cache-gcs-access-id "${google_service_account_key.runner_sa_key.service_account_id}" \
+    --cache-gcs-private-key "${google_service_account_key.runner_sa_key.private_key}" \
+    --cache-gcs-bucket-name "${google_storage_bucket.runner_cache.name}"
 EOF
   service_account {
     email  = google_service_account.runner_controller.email

@@ -46,7 +46,7 @@ sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 mkdir -p /secrets
-echo "${base64decode(google_service_account_key.runner_sa_key.private_key)}" > /secrets/sa.json
+echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
 sudo gitlab-runner register -n \
     --name "${var.controller_gitlab_name} 💪" \
     --url ${var.gitlab_url} \

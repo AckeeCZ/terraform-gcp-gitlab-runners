@@ -8,17 +8,17 @@ resource "google_storage_bucket" "runner_cache" {
   }
 }
 
-resource "google_storage_bucket_iam_binding" "gitlab_ci_runner" {
+resource "google_storage_bucket_iam_binding" "runner_cache" {
   bucket = google_storage_bucket.runner_cache.name
   role   = "roles/storage.objectAdmin"
   members = [
-    "serviceAccount:${google_service_account.runner_instance.email}"
+    "serviceAccount:${google_service_account.runner_controller.email}"
   ]
   depends_on = [google_storage_bucket.runner_cache]
 }
 
 resource "google_service_account_key" "runner_sa_key" {
-  service_account_id = google_service_account.runner_instance.name
+  service_account_id = google_service_account.runner_controller.name
 }
 
 resource "google_compute_instance" "gitlab_runner" {
@@ -45,6 +45,8 @@ curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machi
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
+mkdir -p /secrets
+echo "${base64decode(google_service_account_key.runner_sa_key.private_key)}" > /secrets/sa.json
 sudo gitlab-runner register -n \
     --name "${var.controller_gitlab_name} 💪" \
     --url ${var.gitlab_url} \
@@ -66,10 +68,8 @@ sudo gitlab-runner register -n \
     --machine-machine-options "google-disk-size=${var.runner_disk_size}" \
     --machine-machine-options "google-tags=${var.runner_instance_tags}" \
     --machine-machine-options "google-use-internal-ip" \
-    --cache-shared \
     --cache-type "gcs" \
-    --cache-gcs-access-id "${google_service_account_key.runner_sa_key.service_account_id}" \
-    --cache-gcs-private-key "${google_service_account_key.runner_sa_key.private_key}" \
+    --cache-gcs-credentials-file "/secrets/sa.json" \
     --cache-gcs-bucket-name "${google_storage_bucket.runner_cache.name}"
 EOF
   service_account {

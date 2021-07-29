@@ -1,8 +1,16 @@
 resource "google_storage_bucket" "runner_cache" {
   name          = "runner-cache-${var.project}"
   storage_class = "STANDARD"
-  location      = "EU"
+  location      = var.runner_cache_location
   force_destroy = true
+  lifecycle_rule {
+    action {
+      type = "Delete"
+    }
+    condition {
+      age = "7"
+    }
+  }
   versioning {
     enabled = false
   }

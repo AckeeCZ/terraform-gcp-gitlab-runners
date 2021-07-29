@@ -79,3 +79,8 @@ variable "runner_idle_time" {
   default     = 600
   description = "The maximum idle time for summoned instances before they went down"
 }
+variable "runner_cache_location" {
+  type        = string
+  default     = "EUROPE-WEST3"
+  description = "GCS bucket location for runner cache"
+}

@@ -76,31 +76,6 @@ variable "runner_concurrency" {
 }
 variable "runner_idle_time" {
   type        = number
-  default     = 60
-  description = "The maximum idle time for summoned instances before they went down"
-}
-variable "runner_max_builds" {
-  type        = number
-  default     = 30
-  description = "The maximum number of builds in one instance"
-}
-variable "working_hours_scaling_period" {
-  type        = string
-  default     = "* * 8-17 * * mon-fri *"
-  description = "The time with increased scaling"
-}
-variable "working_hours_scaling_timezone" {
-  type        = string
-  default     = "CET"
-  description = "Timezone for scaling period"
-}
-variable "working_hours_scaling_idle_count" {
-  type        = number
-  default     = 4
-  description = "The minimum number of always active instances"
-}
-variable "working_hours_scaling_idle_time" {
-  type        = number
   default     = 600
-  description = "The maximum lifespan of each instance"
+  description = "The maximum idle time for summoned instances before they went down"
 }

@@ -84,3 +84,8 @@ variable "runner_cache_location" {
   default     = "EUROPE-WEST3"
   description = "GCS bucket location for runner cache"
 }
+variable "runner_mount_volumes" {
+  type        = string
+  default     = "/cache"
+  description = "Docker volume mounts delimited by ,"
+}

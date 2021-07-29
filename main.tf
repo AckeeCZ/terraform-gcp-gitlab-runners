@@ -64,6 +64,7 @@ sudo gitlab-runner register -n \
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
     --docker-privileged=true \
+    --docker-volumes "${var.runner_mount_volumes}" \
     --machine-idle-time ${var.runner_idle_time} \
     --machine-machine-driver google \
     --machine-machine-name "instance-%s" \
@@ -77,6 +78,7 @@ sudo gitlab-runner register -n \
     --machine-machine-options "google-tags=${var.runner_instance_tags}" \
     --machine-machine-options "google-use-internal-ip" \
     --cache-type "gcs" \
+    --cache-shared \
     --cache-gcs-credentials-file "/secrets/sa.json" \
     --cache-gcs-bucket-name "${google_storage_bucket.runner_cache.name}"
 EOF

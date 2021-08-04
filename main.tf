@@ -44,10 +44,10 @@ data "template_file" "runner_config" {
     DISK_SIZE     = var.runner_disk_size
     TAGS          = var.runner_instance_tags
     BUCKET_NAME   = google_storage_bucket.runner_cache.name
-    VOLUMES       = var.runner_mount_volumes
     IDLE_COUNT_W  = var.runner_idle_count_working_hours
     IDLE_TIME_W   = var.runner_idle_time_working_hours
     WORKING_HOURS = var.working_hours
+    VOLUMES       = "${join(",", formatlist("\"%s\"", var.runner_mount_volumes))}"
   }
 }
 

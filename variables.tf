@@ -85,9 +85,9 @@ variable "runner_cache_location" {
   description = "GCS bucket location for runner cache"
 }
 variable "runner_mount_volumes" {
-  type        = string
-  default     = "\"/cache\""
-  description = "Docker volume mounts escaped with \" and delimited by ,"
+  type        = list(string)
+  default     = ["/cache"]
+  description = "Docker volume mounts"
 }
 variable "runner_idle_time_working_hours" {
   type        = number

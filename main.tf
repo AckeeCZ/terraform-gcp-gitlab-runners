@@ -29,6 +29,25 @@ resource "google_service_account_key" "runner_sa_key" {
   service_account_id = google_service_account.runner_controller.name
 }
 
+data "template_file" "runner_config" {
+  template = file("${path.module}/runner_config.tpl")
+  vars = {
+    CONCURRENT    = var.runner_concurrency
+    NAME          = var.controller_gitlab_name
+    URL           = var.gitlab_url
+    TOKEN         = var.runner_token
+    IDLE_TIME     = var.runner_idle_time
+    PROJECT       = var.project
+    INSTANCE_TYPE = var.runner_instance_type
+    ZONE          = var.zone
+    SA            = google_service_account.runner_instance.email
+    DISK_SIZE     = var.runner_disk_size
+    TAGS          = var.runner_instance_tags
+    BUCKET_NAME   = google_storage_bucket.runner_cache.name
+    VOLUMES       = var.runner_mount_volumes
+  }
+}
+
 resource "google_compute_instance" "gitlab_runner" {
   project                   = var.project
   zone                      = var.zone
@@ -52,7 +71,7 @@ curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/sc
 curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
-sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
+echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
 sudo gitlab-runner register -n \
@@ -63,24 +82,7 @@ sudo gitlab-runner register -n \
     --docker-image "alpine:latest" \
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
-    --docker-privileged=true \
-    --docker-volumes "${var.runner_mount_volumes}" \
-    --machine-idle-time ${var.runner_idle_time} \
-    --machine-machine-driver google \
-    --machine-machine-name "instance-%s" \
-    --machine-machine-options "google-project=${var.project}" \
-    --machine-machine-options "google-machine-type=${var.runner_instance_type}" \
-    --machine-machine-options "google-zone=${var.zone}" \
-    --machine-machine-options "google-service-account=${google_service_account.runner_instance.email}" \
-    --machine-machine-options "google-scopes=https://www.googleapis.com/auth/cloud-platform" \
-    --machine-machine-options "google-disk-type=pd-ssd" \
-    --machine-machine-options "google-disk-size=${var.runner_disk_size}" \
-    --machine-machine-options "google-tags=${var.runner_instance_tags}" \
-    --machine-machine-options "google-use-internal-ip" \
-    --cache-type "gcs" \
-    --cache-shared \
-    --cache-gcs-credentials-file "/secrets/sa.json" \
-    --cache-gcs-bucket-name "${google_storage_bucket.runner_cache.name}"
+    --template-config "/tmp/config.toml"
 EOF
   service_account {
     email  = google_service_account.runner_controller.email

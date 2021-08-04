@@ -16,7 +16,7 @@ check_interval = 0
     [runners.cache.s3]
     [runners.cache.gcs]
       CredentialsFile = "/secrets/sa.json"
-      BucketName = "${BUCKET_NAME}"
+      BucketName = "\"${BUCKET_NAME}\""
     [runners.cache.azure]
   [runners.docker]
     tls_verify = false
@@ -25,11 +25,11 @@ check_interval = 0
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
-    volumes = ["${VOLUMES}"]
+    volumes = ['"${VOLUMES}"']
     shm_size = 0
   [runners.machine]
     IdleCount = 0
-    IdleTime = ${IDLE_TIME}
-    MachineDriver = "google"
-    MachineName = "instance-%s"
+    IdleTime = ""${IDLE_TIME}""
+    MachineDriver = ""google""
+    MachineName = '"instance-%s"'
     MachineOptions = ["google-project=${PROJECT}", "google-machine-type=${INSTANCE_TYPE}", "google-zone=${ZONE}", "google-service-account=${SA}", "google-scopes=https://www.googleapis.com/auth/cloud-platform", "google-disk-type=pd-ssd", "google-disk-size=${DISK_SIZE}", "google-tags=${TAGS}", "google-use-internal-ip"]

@@ -86,7 +86,7 @@ variable "runner_cache_location" {
 }
 variable "runner_mount_volumes" {
   type        = list(string)
-  default     = ["/cache"]
+  default     = ["/opt"]
   description = "Docker volume mounts"
 }
 variable "runner_idle_time_working_hours" {

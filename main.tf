@@ -45,6 +45,8 @@ data "template_file" "runner_config" {
     TAGS          = var.runner_instance_tags
     BUCKET_NAME   = google_storage_bucket.runner_cache.name
     VOLUMES       = var.runner_mount_volumes
+    IDLE_COUNT_W  = var.runner_idle_count_working_hours
+    IDLE_TIME_W   = var.runner_idle_time_working_hours
   }
 }
 

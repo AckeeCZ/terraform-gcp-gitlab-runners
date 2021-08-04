@@ -76,7 +76,7 @@ variable "runner_concurrency" {
 }
 variable "runner_idle_time" {
   type        = number
-  default     = 600
+  default     = 60
   description = "The maximum idle time for summoned instances before they went down"
 }
 variable "runner_cache_location" {
@@ -86,6 +86,16 @@ variable "runner_cache_location" {
 }
 variable "runner_mount_volumes" {
   type        = string
-  default     = "/cache"
-  description = "Docker volume mounts delimited by ,"
+  default     = "\"/cache\""
+  description = "Docker volume mounts escaped with \" and delimited by ,"
+}
+variable "runner_idle_time_working_hours" {
+  type        = number
+  default     = 600
+  description = "The maximum idle time for summoned instances before they went down during working hours"
+}
+variable "runner_idle_count_working_hours" {
+  type        = number
+  default     = 4
+  description = "Always up instances during working hours"
 }

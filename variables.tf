@@ -99,3 +99,8 @@ variable "runner_idle_count_working_hours" {
   default     = 4
   description = "Always up instances during working hours"
 }
+variable "working_hours" {
+  type        = string
+  default     = "\"* * 8-17 * * mon-fri *\""
+  description = "Working hours for autoscaling runners"
+}

@@ -47,6 +47,7 @@ data "template_file" "runner_config" {
     VOLUMES       = var.runner_mount_volumes
     IDLE_COUNT_W  = var.runner_idle_count_working_hours
     IDLE_TIME_W   = var.runner_idle_time_working_hours
+    WORKING_HOURS = var.working_hours
   }
 }
 

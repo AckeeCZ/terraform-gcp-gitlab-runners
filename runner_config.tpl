@@ -25,7 +25,7 @@ check_interval = 0
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
-    volumes = [${VOLUMES}]
+    volumes = [$${VOLUMES}]
     shm_size = 0
   [runners.machine]
     IdleCount = 0
@@ -34,7 +34,7 @@ check_interval = 0
     MachineName = "\"instance-%s\""
     MachineOptions = ["\"google-project=${PROJECT}\"", "\"google-machine-type=${INSTANCE_TYPE}\"", "\"google-zone=${ZONE}\"", "\"google-service-account=${SA}\"", "\"google-scopes=https://www.googleapis.com/auth/cloud-platform\"", "\"google-disk-type=pd-ssd\"", "\"google-disk-size=${DISK_SIZE}\"", "\"google-tags=${TAGS}\"", "\"google-use-internal-ip\""]
       [[runners.machine.autoscaling]]
-        Periods = ["* * 8-17 * * mon-fri *"]
+        Periods = ["\"${WORKING_HOURS}\""]
         IdleCount = ${IDLE_COUNT_W}
         IdleTime = ${IDLE_TIME_W}
         Timezone = "CET"

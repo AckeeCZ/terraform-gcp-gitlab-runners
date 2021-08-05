@@ -29,12 +29,6 @@ resource "google_service_account_key" "runner_sa_key" {
   service_account_id = google_service_account.runner_controller.name
 }
 
-locals {
-  runners_additional_volumes = <<-EOT
-  %{~for volume in var.runner_mount_volumes~},"${volume}"%{endfor~}
-  EOT
-}
-
 data "template_file" "runner_config" {
   template = file("${path.module}/runner_config.tpl")
   vars = {
@@ -53,7 +47,6 @@ data "template_file" "runner_config" {
     IDLE_COUNT_W  = var.runner_idle_count_working_hours
     IDLE_TIME_W   = var.runner_idle_time_working_hours
     WORKING_HOURS = var.working_hours
-    VOLUMES       = local.runners_additional_volumes
   }
 }
 
@@ -89,6 +82,7 @@ sudo gitlab-runner register -n \
     --registration-token ${var.runner_token} \
     --executor "docker+machine" \
     --docker-image "alpine:latest" \
+    --docker-volumes "${join(",", formatlist("\"%s\"", var.runner_mount_volumes))}" \
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
     --template-config "/tmp/config.toml"

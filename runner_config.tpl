@@ -1,13 +1,13 @@
-concurrent = ${CONCURRENT}
+concurrent = ${RUNNER_CONCURRENT}
 check_interval = 0
 
 [session_server]
   session_timeout = 1800
 
 [[runners]]
-  name = "\"${NAME}\""
-  url = "\"${URL}\""
-  token = "\"${TOKEN}\""
+  name = "\"${RUNNER_NAME}\""
+  url = "\"${RUNNER_URL}\""
+  token = "\"${RUNNER_TOKEN}\""
   executor = "\"docker+machine\""
   [runners.custom_build_dir]
   [runners.cache]
@@ -16,7 +16,7 @@ check_interval = 0
     [runners.cache.s3]
     [runners.cache.gcs]
       CredentialsFile = "\"/secrets/sa.json\""
-      BucketName = "\"${BUCKET_NAME}\""
+      BucketName = "\"${RUNNER_BUCKET_NAME}\""
     [runners.cache.azure]
   [runners.docker]
     tls_verify = false
@@ -28,13 +28,13 @@ check_interval = 0
     shm_size = 0
   [runners.machine]
     IdleCount = 0
-    IdleTime = ${IDLE_TIME}
-    MaxBuilds = ${MAX_BUILDS}
+    IdleTime = ${RUNNER_IDLE_TIME}
+    MaxBuilds = ${RUNNER_MAX_BUILDS}
     MachineDriver = "\"google\""
     MachineName = "\"instance-%s\""
-    MachineOptions = ["\"google-project=${PROJECT}\"", "\"google-machine-type=${INSTANCE_TYPE}\"", "\"google-zone=${ZONE}\"", "\"google-service-account=${SA}\"", "\"google-scopes=https://www.googleapis.com/auth/cloud-platform\"", "\"google-disk-type=pd-ssd\"", "\"google-disk-size=${DISK_SIZE}\"", "\"google-tags=${TAGS}\"", "\"google-use-internal-ip\""]
+    MachineOptions = ["\"google-project=${RUNNER_PROJECT}\"", "\"google-machine-type=${RUNNER_INSTANCE_TYPE}\"", "\"google-zone=${RUNNER_ZONE}\"", "\"google-service-account=${RUNNER_SA}\"", "\"google-scopes=https://www.googleapis.com/auth/cloud-platform\"", "\"google-disk-type=pd-ssd\"", "\"google-disk-size=${RUNNER_DISK_SIZE}\"", "\"google-tags=${RUNNER_TAGS}\"", "\"google-use-internal-ip\""]
       [[runners.machine.autoscaling]]
-        Periods = ["\"${WORKING_HOURS}\""]
-        IdleCount = ${IDLE_COUNT_W}
-        IdleTime = ${IDLE_TIME_W}
+        Periods = ["\"${RUNNER_WORKING_HOURS}\""]
+        IdleCount = ${RUNNER_IDLE_COUNT_W}
+        IdleTime = ${RUNNER_IDLE_TIME_W}
         Timezone = "\"Local\""

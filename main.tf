@@ -32,22 +32,22 @@ resource "google_service_account_key" "runner_sa_key" {
 data "template_file" "runner_config" {
   template = file("${path.module}/runner_config.tpl")
   vars = {
-    CONCURRENT    = var.runner_concurrency
-    NAME          = var.controller_gitlab_name
-    URL           = var.gitlab_url
-    TOKEN         = var.runner_token
-    IDLE_TIME     = var.runner_idle_time
-    PROJECT       = var.project
-    INSTANCE_TYPE = var.runner_instance_type
-    ZONE          = var.zone
-    SA            = google_service_account.runner_instance.email
-    DISK_SIZE     = var.runner_disk_size
-    TAGS          = var.runner_instance_tags
-    BUCKET_NAME   = google_storage_bucket.runner_cache.name
-    IDLE_COUNT_W  = var.runner_idle_count_working_hours
-    IDLE_TIME_W   = var.runner_idle_time_working_hours
-    WORKING_HOURS = var.working_hours
-    MAX_BUILDS    = var.runner_max_builds
+    RUNNER_CONCURRENT    = var.runner_concurrency
+    RUNNER_NAME          = var.controller_gitlab_name
+    RUNNER_URL           = var.gitlab_url
+    RUNNER_TOKEN         = var.runner_token
+    RUNNER_IDLE_TIME     = var.runner_idle_time
+    RUNNER_PROJECT       = var.project
+    RUNNER_INSTANCE_TYPE = var.runner_instance_type
+    RUNNER_ZONE          = var.zone
+    RUNNER_SA            = google_service_account.runner_instance.email
+    RUNNER_DISK_SIZE     = var.runner_disk_size
+    RUNNER_TAGS          = var.runner_instance_tags
+    RUNNER_BUCKET_NAME   = google_storage_bucket.runner_cache.name
+    RUNNER_IDLE_COUNT_W  = var.runner_idle_count_working_hours
+    RUNNER_IDLE_TIME_W   = var.runner_idle_time_working_hours
+    RUNNER_WORKING_HOURS = var.working_hours
+    RUNNER_MAX_BUILDS    = var.runner_max_builds
   }
 }
 
@@ -71,7 +71,7 @@ resource "google_compute_instance" "gitlab_runner" {
   }
   metadata_startup_script = <<EOF
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
-curl -L https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Linux-x86_64 -o /tmp/docker-machine
+curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml

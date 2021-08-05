@@ -48,6 +48,11 @@ variable "controller_gitlab_untagged" {
   default     = "true"
   description = "Register the runner to also execute GitLab jobs that are untagged."
 }
+variable "controller_permissions" {
+  type        = list(string)
+  default     = ["roles/compute.instanceAdmin.v1","roles/compute.networkAdmin","roles/compute.securityAdmin","roles/logging.logWriter"]
+  description = "Roles needed for controller"
+}
 
 # Instance options
 variable "runner_disk_size" {
@@ -100,8 +105,15 @@ variable "runner_max_builds" {
   default     = 100
   description = "Each machine can handle up to 100 jobs in a row"
 }
+
+# Other options
 variable "working_hours" {
   type        = string
-  default     = "\"* * 8-17 * * mon-fri *\""
+  default     = "\"* * 8-18 * * mon-fri *\""
   description = "Working hours for autoscaling runners"
+}
+variable "docker_machine_version" {
+  type        = string
+  default     = "v0.16.2"
+  description = "Version of docker machine for runners"
 }

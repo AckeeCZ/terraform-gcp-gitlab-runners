@@ -3,24 +3,20 @@ variable "project" {
   type        = string
   description = "GCP project for cloud runners"
 }
-
 variable "region" {
   type        = string
   default     = "europe-west3"
   description = "GCP region"
 }
-
 variable "zone" {
   type        = string
   default     = "europe-west3-c"
   description = "Zone for GCE instances"
 }
-
 variable "runner_token" {
   type        = string
   description = "Registration token for runner obtained in GitLab"
 }
-
 variable "gitlab_url" {
   type        = string
   description = "GitLab URL where cloud runners are intended to be used"
@@ -71,7 +67,7 @@ variable "runner_instance_tags" {
 }
 variable "runner_concurrency" {
   type        = number
-  default     = 1
+  default     = 12
   description = "The maximum number of summoned instances."
 }
 variable "runner_idle_time" {
@@ -86,7 +82,7 @@ variable "runner_cache_location" {
 }
 variable "runner_mount_volumes" {
   type        = list(string)
-  default     = ["/cache","/opt"]
+  default     = ["/cache"]
   description = "Docker volume mounts"
 }
 variable "runner_idle_time_working_hours" {
@@ -98,6 +94,11 @@ variable "runner_idle_count_working_hours" {
   type        = number
   default     = 4
   description = "Always up instances during working hours"
+}
+variable "runner_max_builds" {
+  type        = number
+  default     = 100
+  description = "Each machine can handle up to 100 jobs in a row"
 }
 variable "working_hours" {
   type        = string

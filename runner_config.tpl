@@ -29,6 +29,7 @@ check_interval = 0
   [runners.machine]
     IdleCount = 0
     IdleTime = ${IDLE_TIME}
+    MaxBuilds = ${MAX_BUILDS}
     MachineDriver = "\"google\""
     MachineName = "\"instance-%s\""
     MachineOptions = ["\"google-project=${PROJECT}\"", "\"google-machine-type=${INSTANCE_TYPE}\"", "\"google-zone=${ZONE}\"", "\"google-service-account=${SA}\"", "\"google-scopes=https://www.googleapis.com/auth/cloud-platform\"", "\"google-disk-type=pd-ssd\"", "\"google-disk-size=${DISK_SIZE}\"", "\"google-tags=${TAGS}\"", "\"google-use-internal-ip\""]

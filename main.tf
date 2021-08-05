@@ -47,6 +47,7 @@ data "template_file" "runner_config" {
     IDLE_COUNT_W  = var.runner_idle_count_working_hours
     IDLE_TIME_W   = var.runner_idle_time_working_hours
     WORKING_HOURS = var.working_hours
+    MAX_BUILDS    = var.runner_max_builds
   }
 }
 
@@ -91,8 +92,4 @@ EOF
     email  = google_service_account.runner_controller.email
     scopes = ["cloud-platform"]
   }
-}
-
-output "test_output" {
-  value = google_compute_instance.gitlab_runner.metadata_startup_script
 }

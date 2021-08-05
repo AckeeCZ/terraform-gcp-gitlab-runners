@@ -36,4 +36,4 @@ check_interval = 0
         Periods = ["\"${WORKING_HOURS}\""]
         IdleCount = ${IDLE_COUNT_W}
         IdleTime = ${IDLE_TIME_W}
-        Timezone = "CET"
+        Timezone = "\"Local\""

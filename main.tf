@@ -82,7 +82,7 @@ sudo gitlab-runner register -n \
     --registration-token ${var.runner_token} \
     --executor "docker+machine" \
     --docker-image "alpine:latest" \
-    --docker-volumes "${join(",", formatlist("\"%s\"", var.runner_mount_volumes))}" \
+    ${join("\n", formatlist("--docker-volumes \"%s\" \\", var.runner_mount_volumes))}
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
     --template-config "/tmp/config.toml"
@@ -91,4 +91,8 @@ EOF
     email  = google_service_account.runner_controller.email
     scopes = ["cloud-platform"]
   }
+}
+
+output "test_output" {
+  value = google_compute_instance.gitlab_runner.metadata_startup_script
 }

@@ -74,6 +74,7 @@ curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/sc
 curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
+sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json

@@ -5,12 +5,12 @@ variable "project" {
 }
 variable "region" {
   type        = string
-  default     = "europe-west3"
+  default     = "europe-west1"
   description = "GCP region"
 }
 variable "zone" {
   type        = string
-  default     = "europe-west3-c"
+  default     = "europe-west1-c"
   description = "Zone for GCE instances"
 }
 variable "runner_token" {
@@ -62,7 +62,7 @@ variable "runner_disk_size" {
 }
 variable "runner_instance_type" {
   type        = string
-  default     = "e2-standard-2"
+  default     = "n2d-standard-4"
   description = "Runner instance type. Adjust it for build needs (but n2-standard-2 is not working)"
 }
 variable "runner_instance_tags" {
@@ -82,12 +82,12 @@ variable "runner_idle_time" {
 }
 variable "runner_cache_location" {
   type        = string
-  default     = "EUROPE-WEST3"
+  default     = "EUROPE-WEST1"
   description = "GCS bucket location for runner cache"
 }
 variable "runner_mount_volumes" {
   type        = list(string)
-  default     = ["/cache"]
+  default     = ["/cache","/builds","/var/run/docker.sock:/var/run/docker.sock"]
   description = "Docker volume mounts"
 }
 variable "runner_idle_time_working_hours" {

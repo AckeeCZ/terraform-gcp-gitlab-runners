@@ -83,7 +83,7 @@ sudo gitlab-runner register -n \
     --url ${var.gitlab_url} \
     --registration-token ${var.runner_token} \
     --executor "docker+machine" \
-    --docker-image "alpine:latest" \
+    --docker-image "docker:stable" \
     ${join("\n", formatlist("--docker-volumes \"%s\" \\", var.runner_mount_volumes))}
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \

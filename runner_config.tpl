@@ -21,7 +21,7 @@ check_interval = 0
   [runners.docker]
     tls_verify = false
     image = "\"alpine:latest\""
-    privileged = true
+    privileged = false
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false

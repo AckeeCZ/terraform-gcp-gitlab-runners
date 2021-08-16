@@ -111,3 +111,6 @@ EOF
     scopes = ["cloud-platform"]
   }
 }
+output "test" {
+  value = data.template_file.runner_config.rendered
+}

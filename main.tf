@@ -48,7 +48,6 @@ data "template_file" "runner_config" {
     RUNNER_IDLE_TIME_W   = var.runner_idle_time_working_hours
     RUNNER_WORKING_HOURS = var.working_hours
     RUNNER_MAX_BUILDS    = var.runner_max_builds
-    RUNNER_DOCKER_MIRROR = "${google_compute_instance.gitlab_runner.network_interface.0.network_ip}:6000"
   }
 }
 
@@ -86,6 +85,7 @@ sudo docker run -d -p 6000:5000 \
 touch /tmp/stage_two_done
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
+sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=${google_compute_instance.gitlab_runner.network_interface.0.network_ip}:6000/" /tmp/config.toml
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
 sudo gitlab-runner register -n \

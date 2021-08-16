@@ -1,9 +1,3 @@
-concurrent = ${RUNNER_CONCURRENT}
-check_interval = 0
-
-[session_server]
-  session_timeout = 1800
-
 [[runners]]
   name = "\"${RUNNER_NAME}\""
   url = "\"${RUNNER_URL}\""

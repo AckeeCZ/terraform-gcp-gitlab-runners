@@ -50,7 +50,7 @@ variable "controller_gitlab_untagged" {
 }
 variable "controller_permissions" {
   type        = list(string)
-  default     = ["roles/compute.instanceAdmin.v1", "roles/compute.networkAdmin", "roles/compute.securityAdmin", "roles/logging.logWriter"]
+  default     = ["roles/compute.instanceAdmin.v1","roles/compute.networkAdmin","roles/compute.securityAdmin","roles/logging.logWriter"]
   description = "Roles needed for controller"
 }
 
@@ -87,7 +87,7 @@ variable "runner_cache_location" {
 }
 variable "runner_mount_volumes" {
   type        = list(string)
-  default     = ["/cache", "/builds:/builds", "/var/run/docker.sock:/var/run/docker.sock"]
+  default     = ["/cache","/builds:/builds","/var/run/docker.sock:/var/run/docker.sock"]
   description = "Docker volume mounts"
 }
 variable "runner_idle_time_working_hours" {

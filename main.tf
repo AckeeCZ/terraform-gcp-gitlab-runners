@@ -74,8 +74,17 @@ curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/sc
 curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
+sudo docker run -d -p 6000:5000 \
+  -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io \
+  --restart always \
+  --name registry registry:2
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
+export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip`
+sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=http:\/\/$IP:6000/" /tmp/config.toml
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
 sudo gitlab-runner register -n \

@@ -25,7 +25,7 @@ variable "gitlab_url" {
 # Controller options
 variable "controller_disk_size" {
   type        = string
-  default     = "20"
+  default     = "100"
   description = "The size of the persistent disk in GB for the controller"
 }
 variable "controller_instance_type" {
@@ -50,19 +50,19 @@ variable "controller_gitlab_untagged" {
 }
 variable "controller_permissions" {
   type        = list(string)
-  default     = ["roles/compute.instanceAdmin.v1","roles/compute.networkAdmin","roles/compute.securityAdmin","roles/logging.logWriter"]
+  default     = ["roles/compute.instanceAdmin.v1", "roles/compute.networkAdmin", "roles/compute.securityAdmin", "roles/logging.logWriter"]
   description = "Roles needed for controller"
 }
 
 # Instance options
 variable "runner_disk_size" {
   type        = string
-  default     = "100"
+  default     = "200"
   description = "The size of the persistent disk in GB for summoned instances"
 }
 variable "runner_instance_type" {
   type        = string
-  default     = "n2d-standard-4"
+  default     = "n2d-standard-2"
   description = "Runner instance type. Adjust it for build needs (but n2-standard-2 is not working)"
 }
 variable "runner_instance_tags" {
@@ -87,7 +87,7 @@ variable "runner_cache_location" {
 }
 variable "runner_mount_volumes" {
   type        = list(string)
-  default     = ["/cache","/builds:/builds","/var/run/docker.sock:/var/run/docker.sock"]
+  default     = ["/cache", "/builds:/builds", "/var/run/docker.sock:/var/run/docker.sock"]
   description = "Docker volume mounts"
 }
 variable "runner_idle_time_working_hours" {

@@ -75,7 +75,7 @@ curl -L https://github.com/docker/machine/releases/download/${var.docker_machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install docker-ce docker-ce-cli containerd.io
+sudo yum install -y docker-ce docker-ce-cli containerd.io
 touch /tmp/stage_one_done
 sudo systemctl start docker
 sudo docker run -d -p 6000:5000 \
@@ -85,7 +85,6 @@ sudo docker run -d -p 6000:5000 \
 touch /tmp/stage_two_done
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
-sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=${google_compute_instance.gitlab_runner.network_interface.0.network_ip}:6000/" /tmp/config.toml
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
 sudo gitlab-runner register -n \

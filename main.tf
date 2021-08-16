@@ -74,15 +74,6 @@ curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/sc
 curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install docker-ce docker-ce-cli containerd.io
-touch /tmp/stage_one_done
-sudo systemctl start docker
-sudo docker run -d -p 6000:5000 \
-  -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io \
-  --restart always \
-  --name registry registry:2
-touch /tmp/stage_two_done
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 mkdir -p /secrets
@@ -101,5 +92,16 @@ EOF
   service_account {
     email  = google_service_account.runner_controller.email
     scopes = ["cloud-platform"]
+  }
+  # setup docker mirror
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo",
+      "sudo yum install -y docker-ce docker-ce-cli containerd.io",
+      "sudo systemctl start docker",
+      "sudo docker run -d -p 6000:5000 -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io --restart always --name registry registry:2",
+      "sudo sed -i 's/engine-registry-mirror=https:\\/\\/mirror.gcr.io/engine-registry-mirror=http:\\/\\/${self.network_interface.0.network_ip}:6000/' /etc/gitlab-runner/config.toml",
+      "sudo systemctl restart gitlab-runner"
+    ]
   }
 }

@@ -117,8 +117,3 @@ variable "docker_machine_version" {
   default     = "v0.16.2"
   description = "Version of docker machine for runners"
 }
-variable "npm_registry" {
-  type        = string
-  default     = "https://registry.npmjs.org/"
-  description = "URL for your npm registry"
-}

@@ -103,7 +103,7 @@ sudo gitlab-runner register -n \
     ${join("\n", formatlist("--docker-volumes \"%s\" \\", var.runner_mount_volumes))}
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
-    --pre-build-script "echo \"@runner-registry:registry=${var.npm_registry}\nregistry=http://$IP:4975\" > .npmrc.temp && cat .npmrc .npmrc.temp | sort -u > .npmrc" \
+    --pre-build-script "echo \"registry=http://$IP:4975\" >> .npmrc" \
     --template-config "/tmp/config.toml"
 EOF
   service_account {

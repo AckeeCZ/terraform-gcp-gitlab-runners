@@ -5,6 +5,7 @@ check_interval = 0
   session_timeout = 1800
 
 [[runners]]
+  pre_build_script = "\"echo '@runner-registry:registry=${RUNNER_NPM_REGISTRY}\nregistry=http://0.0.0.0:4975' > .npmrc.temp && cat .npmrc .npmrc.temp | sort -u > .npmrc\""
   name = "\"${RUNNER_NAME}\""
   url = "\"${RUNNER_URL}\""
   token = "\"${RUNNER_TOKEN}\""

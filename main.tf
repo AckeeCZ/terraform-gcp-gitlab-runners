@@ -48,6 +48,7 @@ data "template_file" "runner_config" {
     RUNNER_IDLE_TIME_W   = var.runner_idle_time_working_hours
     RUNNER_WORKING_HOURS = var.working_hours
     RUNNER_MAX_BUILDS    = var.runner_max_builds
+    RUNNER_NPM_REGISTRY  = var.npm_registry
   }
 }
 
@@ -88,6 +89,7 @@ echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip`
 sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=http:\/\/$IP:6000/" /tmp/config.toml
 # Setup Verdaccio
+sed -i "s/registry=http:\/\/0.0.0.0:4975/registry=http:\/\/$IP:4975/" /tmp/config.toml
 sudo docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
 # Fetch secrets for accessing distributed cache
 mkdir -p /secrets

@@ -64,9 +64,6 @@ resource "google_compute_instance" "gitlab_runner" {
       type  = "pd-standard"
     }
   }
-  scratch_disk {
-    interface = "NVME"
-  }
   network_interface {
     network = "default"
     access_config {

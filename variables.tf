@@ -25,7 +25,7 @@ variable "gitlab_url" {
 # Controller options
 variable "controller_disk_size" {
   type        = string
-  default     = "20"
+  default     = "100"
   description = "The size of the persistent disk in GB for the controller"
 }
 variable "controller_instance_type" {

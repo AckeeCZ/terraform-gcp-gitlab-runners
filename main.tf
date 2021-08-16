@@ -64,6 +64,9 @@ resource "google_compute_instance" "gitlab_runner" {
       type  = "pd-standard"
     }
   }
+  scratch_disk {
+    interface = "NVME"
+  }
   network_interface {
     network = "default"
     access_config {
@@ -88,7 +91,7 @@ echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip`
 sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=http:\/\/$IP:6000/" /tmp/config.toml
 # Setup Verdaccio
-docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
+sudo docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
 # Fetch secrets for accessing distributed cache
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json

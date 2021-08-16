@@ -48,7 +48,6 @@ data "template_file" "runner_config" {
     RUNNER_IDLE_TIME_W   = var.runner_idle_time_working_hours
     RUNNER_WORKING_HOURS = var.working_hours
     RUNNER_MAX_BUILDS    = var.runner_max_builds
-    RUNNER_NPM_REGISTRY  = var.npm_registry
   }
 }
 
@@ -104,6 +103,7 @@ sudo gitlab-runner register -n \
     ${join("\n", formatlist("--docker-volumes \"%s\" \\", var.runner_mount_volumes))}
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
+    --pre-build-script "echo \"@runner-registry:registry=${var.npm_registry}\nregistry=http://0.0.0.0:4975\" > .npmrc.temp && cat .npmrc .npmrc.temp | sort -u > .npmrc" \
     --template-config "/tmp/config.toml"
 EOF
   service_account {

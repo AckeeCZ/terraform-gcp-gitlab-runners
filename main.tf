@@ -70,10 +70,12 @@ resource "google_compute_instance" "gitlab_runner" {
     }
   }
   metadata_startup_script = <<EOF
+# Install gitlab-runner and docker machine
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
 curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 sudo install /tmp/docker-machine /usr/local/bin/docker-machine
 sudo yum install -y gitlab-runner
+# Setup docker mirror
 sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 sudo yum install -y docker-ce docker-ce-cli containerd.io
 sudo systemctl start docker
@@ -85,8 +87,12 @@ sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-r
 echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip`
 sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=http:\/\/$IP:6000/" /tmp/config.toml
+# Setup Verdaccio
+docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
+# Fetch secrets for accessing distributed cache
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
+# Register GCP runner
 sudo gitlab-runner register -n \
     --name "${var.controller_gitlab_name} 💪" \
     --url ${var.gitlab_url} \

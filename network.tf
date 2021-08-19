@@ -1,5 +1,6 @@
 resource "google_compute_project_default_network_tier" "default" {
   network_tier = "STANDARD"
+  depends_on   = [module.cloud-nat]
 }
 
 resource "google_compute_address" "outgoing_traffic_europe_west1" {

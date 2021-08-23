@@ -58,56 +58,68 @@ resource "google_compute_instance" "gitlab_runner" {
   allow_stopping_for_update = true
   boot_disk {
     initialize_params {
-      image = "centos-cloud/centos-7"
+      image = var.controller_image
       size  = var.controller_disk_size
-      type  = "pd-standard"
+      type  = var.controller_disk_type
     }
   }
   network_interface {
-    network = "default"
+    network = var.network
     access_config {
     }
+  }
+  service_account {
+    email  = google_service_account.runner_controller.email
+    scopes = ["cloud-platform"]
   }
   metadata_startup_script = <<EOF
 # Install gitlab-runner and docker machine
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
 curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
-sudo install /tmp/docker-machine /usr/local/bin/docker-machine
-sudo yum install -y gitlab-runner
+install /tmp/docker-machine /usr/local/bin/docker-machine
+apt install -y gitlab-runner
+
+# https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539
 sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
+
 # Get IP of runner controller
 export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip`
+
 # Render template for runner registration
-echo "${data.template_file.runner_config.rendered}" > /tmp/config.toml
+printf "%s" "${data.template_file.runner_config.rendered}" > /tmp/config.toml
+
 # Setup docker mirror
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-sudo yum install -y docker-ce docker-ce-cli containerd.io
-sudo systemctl start docker
-sudo docker run -d -p 6000:5000 \
+apt-get update
+apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io
+systemctl enable docker
+systemctl start docker
+docker run -d -p 6000:5000 \
   -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io \
   --restart always \
   --name registry registry:2
 sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=http:\/\/$IP:6000/" /tmp/config.toml
+
 # Setup Verdaccio
-sudo docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
+docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
+
 # Fetch secrets for accessing distributed cache
 mkdir -p /secrets
 echo '${base64decode(google_service_account_key.runner_sa_key.private_key)}' > /secrets/sa.json
+
 # Register GCP runner
-sudo gitlab-runner register -n \
+gitlab-runner register -n \
     --name "${var.controller_gitlab_name} 💪" \
     --url ${var.gitlab_url} \
     --registration-token ${var.runner_token} \
     --executor "docker+machine" \
-    --docker-image "docker:stable" \
+    --docker-image "${var.runner_docker_image}" \
     ${join("\n", formatlist("--docker-volumes \"%s\" \\", var.runner_mount_volumes))}
     --tag-list "${var.controller_gitlab_tags}" \
     --run-untagged="${var.controller_gitlab_untagged}" \
     --pre-build-script "echo \"registry=http://$IP:4975\" >> .npmrc" \
     --template-config "/tmp/config.toml"
 EOF
-  service_account {
-    email  = google_service_account.runner_controller.email
-    scopes = ["cloud-platform"]
-  }
 }

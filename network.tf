@@ -6,11 +6,11 @@ resource "google_compute_address" "outgoing_traffic_europe_west1" {
 
 module "cloud-nat" {
   source        = "terraform-google-modules/cloud-nat/google"
-  version       = "2.0.0"
+  version       = var.nat_module_version
   project_id    = var.project
   region        = var.region
   create_router = true
-  network       = "default"
+  network       = var.network
   router        = "nat-router"
   nat_ips       = [google_compute_address.outgoing_traffic_europe_west1.self_link]
 }

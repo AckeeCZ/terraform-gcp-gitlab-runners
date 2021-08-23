@@ -13,6 +13,11 @@ variable "zone" {
   default     = "europe-west1-c"
   description = "Zone for GCE instances"
 }
+variable "network" {
+  type        = string
+  default     = "default"
+  description = "GCP network for use"
+}
 variable "runner_token" {
   type        = string
   description = "Registration token for runner obtained in GitLab"
@@ -28,10 +33,20 @@ variable "controller_disk_size" {
   default     = "100"
   description = "The size of the persistent disk in GB for the controller"
 }
+variable "controller_disk_type" {
+  type        = string
+  default     = "pd-standard"
+  description = "GCP disk type for controller"
+}
+variable "controller_image" {
+  type        = string
+  default     = "ubuntu-os-cloud/ubuntu-2004-lts"
+  description = "Image for controller"
+}
 variable "controller_instance_type" {
   type        = string
-  default     = "f1-micro"
-  description = "Instance type for controller, speed & power is not needed here."
+  default     = "e2-small"
+  description = "Instance type for controller, speed & power is not needed here"
 }
 variable "controller_gitlab_name" {
   type        = string
@@ -58,12 +73,17 @@ variable "controller_permissions" {
 variable "runner_disk_size" {
   type        = string
   default     = "200"
-  description = "The size of the persistent disk in GB for summoned instances"
+  description = "The size of the persistent disk in GB for summoned instances (higher number than needed for better IOPS)"
+}
+variable "runner_docker_image" {
+  type        = string
+  default     = "docker-stable"
+  description = "Docker image to be used, for runners"
 }
 variable "runner_instance_type" {
   type        = string
   default     = "n2d-standard-2"
-  description = "Runner instance type. Adjust it for build needs (but n2-standard-2 is not working)"
+  description = "Runner instance type. Adjust it for build needs"
 }
 variable "runner_instance_tags" {
   type        = string
@@ -116,4 +136,9 @@ variable "docker_machine_version" {
   type        = string
   default     = "v0.16.2"
   description = "Version of docker machine for runners"
+}
+variable "nat_module_version" {
+  type        = string
+  default     = "2.0.0"
+  description = "Version for terraform-google-modules/cloud-nat/google"
 }

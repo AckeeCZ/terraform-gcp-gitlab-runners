@@ -18,6 +18,11 @@ variable "network" {
   default     = "default"
   description = "GCP network for use"
 }
+variable "enable_cloud_nat" {
+  type        = bool
+  default     = false
+  description = "Use Cloud NAT instance instead of public IP addreses"
+}
 variable "runner_token" {
   type        = string
   description = "Registration token for runner obtained in GitLab"
@@ -35,7 +40,7 @@ variable "controller_disk_size" {
 }
 variable "controller_disk_type" {
   type        = string
-  default     = "pd-standard"
+  default     = "pd-balanced"
   description = "GCP disk type for controller"
 }
 variable "controller_image" {
@@ -136,9 +141,4 @@ variable "docker_machine_version" {
   type        = string
   default     = "v0.16.2"
   description = "Version of docker machine for runners"
-}
-variable "nat_module_version" {
-  type        = string
-  default     = "2.0.0"
-  description = "Version for terraform-google-modules/cloud-nat/google"
 }

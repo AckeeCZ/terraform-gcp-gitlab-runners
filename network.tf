@@ -5,8 +5,9 @@ resource "google_compute_address" "outgoing_traffic_europe_west1" {
 }
 
 module "cloud-nat" {
+  count         = var.enable_cloud_nat == true ? 1 : 0
   source        = "terraform-google-modules/cloud-nat/google"
-  version       = var.nat_module_version
+  version       = "2.0.0"
   project_id    = var.project
   region        = var.region
   create_router = true

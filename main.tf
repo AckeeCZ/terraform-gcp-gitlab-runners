@@ -74,7 +74,8 @@ resource "google_compute_instance" "gitlab_runner" {
   }
   metadata_startup_script = <<EOF
 # Install gitlab-runner and docker machine
-curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
+curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_amd64.deb"
+dpkg -i gitlab-runner_amd64.deb
 curl -L https://github.com/docker/machine/releases/download/${var.docker_machine_version}/docker-machine-Linux-x86_64 -o /tmp/docker-machine
 install /tmp/docker-machine /usr/local/bin/docker-machine
 apt install -y gitlab-runner
@@ -92,8 +93,11 @@ printf "%s" "${data.template_file.runner_config.rendered}" > /tmp/config.toml
 apt-get update
 apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
-apt-get install docker-ce docker-ce-cli containerd.io
+apt-get install -y docker-ce docker-ce-cli containerd.io
 systemctl enable docker
 systemctl start docker
 docker run -d -p 6000:5000 \

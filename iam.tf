@@ -7,14 +7,14 @@ resource "random_string" "random_suffix" {
 # SA for microinstance which spawns instances
 resource "google_service_account" "runner_controller" {
   project      = var.project
-  account_id   = "runner-controller-${random_string.random_suffix}"
+  account_id   = "runner-controller-${random_string.random_suffix.result}"
   display_name = "GitLab CI Runner Controller"
 }
 
 # SA for spawned runner instances
 resource "google_service_account" "runner_instance" {
   project      = var.project
-  account_id   = "runner-instance-${random_string.random_suffix}"
+  account_id   = "runner-instance-${random_string.random_suffix.result}"
   display_name = "GitLab CI Runner Instance"
 }
 

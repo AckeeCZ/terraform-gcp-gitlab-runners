@@ -81,7 +81,7 @@ install /tmp/docker-machine /usr/local/bin/docker-machine
 apt install -y gitlab-runner
 
 # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539
-sed -i "s/concurrent = .*/concurrent = ${var.runner_concurrency}/" /etc/gitlab-runner/config.toml
+sed -i "s&concurrent = .*&concurrent = ${var.runner_concurrency}&" /etc/gitlab-runner/config.toml
 
 # Get IP of runner controller
 export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip`
@@ -104,7 +104,7 @@ docker run -d -p 6000:5000 \
   -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io \
   --restart always \
   --name registry registry:2
-sed -i "s/engine-registry-mirror=https:\/\/mirror.gcr.io/engine-registry-mirror=http:\/\/$IP:6000/" /tmp/config.toml
+sed -i "s&engine-registry-mirror=https://mirror.gcr.io&engine-registry-mirror=http://$IP:6000&" /tmp/config.toml
 
 # Setup Verdaccio
 docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio

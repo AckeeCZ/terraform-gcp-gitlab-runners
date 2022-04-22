@@ -50,6 +50,10 @@ data "template_file" "runner_config" {
   }
 }
 
+data "template_file" "verdaccio_config" {
+  template = file("${path.module}/verdaccio.yaml")
+}
+
 resource "google_compute_instance" "gitlab_runner" {
   project                   = var.project
   zone                      = var.zone
@@ -88,6 +92,8 @@ export IP=`curl -X GET -H "Metadata-Flavor: Google" http://metadata.google.inter
 
 # Render template for runner registration
 printf "%s" "${data.template_file.runner_config.rendered}" > /tmp/config.toml
+mkdir -p /var/lib/verdaccio/conf
+echo "${data.template_file.verdaccio_config.rendered}" > /var/lib/verdaccio/conf/config.yaml
 
 # Setup docker mirror
 apt-get update
@@ -100,14 +106,22 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io
 systemctl enable docker
 systemctl start docker
+mkdir -p /var/lib/docker-registry
 docker run -d -p 6000:5000 \
   -e REGISTRY_PROXY_REMOTEURL=https://registry-1.docker.io \
   --restart always \
+  -v /var/lib/docker-registry:/var/lib/registry \
   --name registry registry:2
 sed -i "s&engine-registry-mirror=https://mirror.gcr.io&engine-registry-mirror=http://$IP:6000&" /tmp/config.toml
 
 # Setup Verdaccio
-docker run -d --restart always --name verdaccio -p 4975:4873 verdaccio/verdaccio
+mkdir -p /var/lib/verdaccio/cache
+chown -R 10001 /var/lib/verdaccio
+docker run -d -p 4975:4873 \
+  --restart always \
+  -v /var/lib/verdaccio/cache:/verdaccio/storage/data/verdaccio/cache \
+  -v /var/lib/verdaccio/conf:/verdaccio/conf \
+  --name verdaccio verdaccio/verdaccio
 
 # Fetch secrets for accessing distributed cache
 mkdir -p /secrets

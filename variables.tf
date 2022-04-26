@@ -142,3 +142,8 @@ variable "docker_machine_version" {
   default     = "v0.16.2"
   description = "Version of docker machine for runners"
 }
+variable "worker_image" {
+  type        = string
+  default     = "ubuntu-os-cloud/global/images/family/ubuntu-1804-lts"
+  description = "Image for provisioned VMs"
+}

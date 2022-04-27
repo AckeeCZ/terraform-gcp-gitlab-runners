@@ -47,6 +47,7 @@ data "template_file" "runner_config" {
     RUNNER_IDLE_TIME_W   = var.runner_idle_time_working_hours
     RUNNER_WORKING_HOURS = var.working_hours
     RUNNER_MAX_BUILDS    = var.runner_max_builds
+    WORKER_IMAGE         = var.worker_image
   }
 }
 
